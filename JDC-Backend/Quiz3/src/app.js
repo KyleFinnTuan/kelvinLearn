@@ -1,0 +1,16 @@
+import express from 'express';
+import 'dotenv/config'
+import router from './routers/index.routes.js';
+
+
+const app = express()
+const port = 3000
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/',router)
+
+app.listen(port, ()=> {
+    console.log(`listening to port:`, port);   
+})
