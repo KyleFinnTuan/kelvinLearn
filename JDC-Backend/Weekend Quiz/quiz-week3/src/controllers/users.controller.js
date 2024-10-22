@@ -18,6 +18,8 @@ class UserController {
       res.status(500).send("Internal Server Error");
     }
   };
+
+  addOrder 
 }
 
 export const userController = new UserController();
