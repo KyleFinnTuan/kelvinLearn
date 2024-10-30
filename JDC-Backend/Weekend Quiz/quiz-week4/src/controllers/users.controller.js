@@ -49,13 +49,11 @@ class UserController {
             })
     
             if (!userFound) {
-                return res.status(404).send('User Not Found')   
+                throw { name: 'IdNotFound', message: 'No users found' };
             }
     
             res.status(202).send(userFound)
-        } catch (error) {
-            console.log(error);
-            
+        } catch (error) {            
             next(error)
 
             

@@ -5,18 +5,20 @@ const prisma = new PrismaClient();
 class CommentController {
     addComment = async (req, res, next) => {
         try {
-            const { content } = req.body
+            const { content, user_id, post_id } = req.body
 
             const newComment = await prisma.comments.create ({
                 data: {
                     content,
+                    post_id,
+                    user_id,
+
                 },
             })
             res.status(201).send(newComment)
 
         } catch (error) {
-            console.log(error);
-            res.status(500).send("Internal Server Error");
+            next(error)
         }
     };
 
@@ -28,8 +30,7 @@ class CommentController {
 
             res.status(200).send(getComment)
         } catch (error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error')
+            next(error)
         }
     }
 
@@ -38,7 +39,7 @@ class CommentController {
         try {
             const { id } = req.params;
     
-            const commentFound = await prisma.comments.findUnique({
+            const commentFound = await prisma.comments.findUniqueOrThrow({
                 where: {id : id}
             })
     
@@ -48,8 +49,7 @@ class CommentController {
     
             res.status(202).send(commentFound)
         } catch (error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error')
+            next(error)
             
         }
     }
