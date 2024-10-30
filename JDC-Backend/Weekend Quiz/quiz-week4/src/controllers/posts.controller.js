@@ -1,9 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-
 const prisma = new PrismaClient();
 
 class PostController {
-  addPost = async (req, res) => {
+  addPost = async (req, res, next) => {
     try {
       const { title, content, author_id } = req.body;
 
@@ -11,94 +10,89 @@ class PostController {
         data: {
           title,
           content,
-          author_id,
+          author_id: author_id,
         },
       });
       res.status(201).send(newPost);
     } catch (error) {
-      console.log(error);
-      res.status(500).send("Internal Server Error");
+      next(error);
     }
   };
 
+  findPost = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const post = await prisma.posts.findUniqueOrThrow({
+        where: { id: id },
+        include: {
+          author: true,
+          comments: {
+            orderBy: {
+              created_at: 'desc',
+            },
+          },
+        },
+      });
 
-getPost = async (req, res) => {
-  
-  try {
-    const { id } = req.params;      
+      res.status(200).send(post);
+    } catch (error) {
+      next(error);
+    }
+  };
 
-    const postFound = await prisma.posts.findUnique({
-      where: { id },
-      include: {
-        author: true,
-        comments: true,
-      },
-    });    
+  getAllPost = async (req, res, next) => {
+    try {
+      const posts = await prisma.posts.findMany({});
+      res.status(200).send(posts);
+    } catch (error) {
+      next(error);
+    }
+  };
 
-    res.status(20).send(postFound);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
+  removePost = async (req, res, next) => {
+    try {
+      const { id } = req.params;
 
-getAllPost = async (req, res) => {
-  try {
-    const userShows = await prisma.posts.findMany({});
+      const postFound = await prisma.post.findUniqueOrThrow({
+        where: { id: id },
+      });
 
-    res.status(200).send(userShows);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
-  }
-  
-  
-};
-removePost = async (req, res) => {
-  try {
-    const { id } = req.params;
+      if (!postFound) throw { name: 'IdNotFound', message: 'No Posts found' };
 
-    const postFound = await prisma.posts.findUnique({
-      where: { id },
-    });
+      const deletedPosts = await prisma.posts.delete({
+        where: { id: id },
+      });
+      res.send(deletedPosts);
+    } catch (error) {
+      next(error);
+    }
+  };
 
-    if (!postFound) res.status(404).send("Post Not Found");
+  updatedPost = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { title, content } = req.body;
 
-    const deletedPosts = await prisma.posts.delete({
-      where: { id },
-    });
-    res.send(deletedPosts);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
-  }
-}
+      const postsFound = await prisma.posts.findUniqueOrThrow({
+        where: { id: Number(id) },
+      });
 
-updatedPost = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, content } = req.body;
+      if (!postsFound) throw { name: 'IdNotFound', message: 'No Posts found' };
 
-    const postsFound = await prisma.posts.findUnique({
-      where: { id }
-    })
+      const updatedPost = await prisma.post.update({
+        where: { id:id },
+        data: {
+          title,
+          content,
+        },
+      });
 
-    if (!postsFound) return res.status(404).send('User not found');
-
-    const updatedPost = await prisma.posts.update({
-      where: { id },
-      data: {
-        title,
-        content,
-      }
-    })
-
-    res.status(200).send(updatedPost);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Internal Server Error');
-  }
-}
+      res.status(200).send(updatedPost);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export const postController = new PostController();
+

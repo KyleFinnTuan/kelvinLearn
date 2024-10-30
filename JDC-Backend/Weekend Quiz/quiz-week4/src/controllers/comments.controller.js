@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 class CommentController {
-    addComment = async (req, res) => {
+    addComment = async (req, res, next) => {
         try {
             const { content } = req.body
 
@@ -20,7 +20,7 @@ class CommentController {
         }
     };
 
-    getAllComment = async (req, res) => {
+    getAllComment = async (req, res, next) => {
         try {
             const getComment = await prisma.comments.findMany({
             })
@@ -33,7 +33,7 @@ class CommentController {
         }
     }
 
-    findComment = async (req,res) => {
+    findComment = async (req, res, next) => {
         
         try {
             const { id } = req.params;

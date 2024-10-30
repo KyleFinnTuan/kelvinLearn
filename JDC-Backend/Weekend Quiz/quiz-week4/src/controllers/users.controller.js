@@ -3,13 +3,13 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 class UserController {
-    addUser = async (req, res) => {
+    addUser = async (req, res, next) => {
         try {
-            const { user_name, email, password } = req.body
+            const { username, email, password } = req.body
 
             const newUser = await prisma.users.create ({
                 data: {
-                    user_name,
+                    username,
                     email,
                     password
                 },
@@ -17,12 +17,12 @@ class UserController {
             res.status(201).send(newUser)
 
         } catch (error) {
-            console.log(error);
-            res.status(500).send("Internal Server Error");
+            next(error)
+
         }
     };
 
-    getAllUser = async (req, res) => {
+    getAllUser = async (req, res, next) => {
         try {
             const showUser = await prisma.users.findMany({
                 include: {
@@ -34,17 +34,17 @@ class UserController {
 
             res.status(200).send(showUser)
         } catch (error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error')
+            next(error)
+
         }
     }
 
-    findUser = async (req,res) => {
+    findUser = async (req, res, next) => {
         
         try {
             const { id } = req.params;
     
-            const userFound = await prisma.users.findUnique({
+            const userFound = await prisma.users.findUniqueOrThrow({
                 where: {id : id}
             })
     
@@ -55,12 +55,14 @@ class UserController {
             res.status(202).send(userFound)
         } catch (error) {
             console.log(error);
-            res.status(500).send('Internal Server Error')
+            
+            next(error)
+
             
         }
     }
 
-    findPost = async (req,res) => {
+    findPost = async (req, res, next) => {
         try {
             const { id } = req.params;
 
@@ -79,8 +81,7 @@ class UserController {
                 // const postFound = userFound.p
             res.status(202).send(userFound.posts)
             }catch (error) {
-                console.log(error);
-                res.status(500).send('Internal Server Error')
+                next(error)
             }
     }
 }

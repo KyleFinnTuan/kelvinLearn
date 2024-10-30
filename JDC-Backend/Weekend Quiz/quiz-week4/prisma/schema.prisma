@@ -15,7 +15,7 @@ datasource db {
 
 model Users {
   id String @id @default(uuid())
-  user_name String? @unique @db.VarChar(50)
+  username String? @unique @db.VarChar(50)
   email String? @unique
   password String @db.VarChar(50)
   posts Posts[]
@@ -27,10 +27,11 @@ model Users {
 model Posts {
   id String @id @default(uuid())
   title String
-  content String 
+  content String @db.Text
   comments Comments[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
   author_id String
   author Users @relation(fields: [author_id], references: [id])
 }
@@ -38,8 +39,14 @@ model Posts {
 model Comments {
   id String @id @default(uuid())
   content String
-  posts Posts[]
-  users Users[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  user_id String @unique
+  user Users @relation(fields: [user_id], references: [id])
+
+  post_id String
+  post Posts @relation(fields: [post_id], references: [id])
+
+
 }
