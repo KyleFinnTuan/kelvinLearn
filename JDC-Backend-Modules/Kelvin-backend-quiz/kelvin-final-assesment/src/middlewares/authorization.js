@@ -3,11 +3,13 @@ import { PrismaClient } from "@prisma/client"
 const prisma = new PrismaClient()
 
 export const userAuthorization = async (req, res, next) => {
-    try {
-        const { id: resourcesId } = req.params
-        const { id: userId } = req.user;
-
+  try {
+    const { id: resourcesId } = req.params
+    const { id: userId } = req.user;
+    
         const resourceType = req.baseUrl.split('/').at(-1)
+
+
 
         let hasAccess = false
 
@@ -15,7 +17,7 @@ export const userAuthorization = async (req, res, next) => {
             case 'users':
                 const user = await prisma.user.findUniqueOrThrow({
                     where: {
-                        id: parseInt(resourcesId)
+                        id: resourcesId
                     }
                 })
 
@@ -24,8 +26,9 @@ export const userAuthorization = async (req, res, next) => {
         
             case 'profiles':
                 const profile = await prisma.profile.findUniqueOrThrow({
+                
                     where: {
-                        id: (resourcesId)
+                        id: resourcesId
                     }
                 })
                 if (profile.user_id === userId) hasAccess = true;
@@ -41,7 +44,9 @@ export const userAuthorization = async (req, res, next) => {
 
 
         next()
-    } catch (error) {
+    } catch (error) {      
+      console.log("error1!");
+      
         next(error)
     }
 }

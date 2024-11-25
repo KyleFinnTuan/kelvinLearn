@@ -78,6 +78,8 @@ class UserContorller {
       const { id } = req.params
       const { email, password, role_id } = req.body
 
+      
+
       await prisma.user.findUniqueOrThrow({
         where: { id }
       }) 
@@ -94,6 +96,8 @@ class UserContorller {
     
       res.status(201).send(updatedUser)
     } catch (error) {
+      console.log("error 2");
+      
       next(error)
     }
   }

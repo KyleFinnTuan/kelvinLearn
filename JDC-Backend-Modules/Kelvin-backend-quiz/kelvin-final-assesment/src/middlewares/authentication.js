@@ -6,11 +6,15 @@ const prisma = new PrismaClient()
 export const authentication = async (req, res, next) => {
     try {
         const { access_token } = req.headers
-        
-        const payload = jsonwebtoken.verify(access_token, process.env.JWT_SECRET)
+                    
+
+        const payload = jsonwebtoken.verify(access_token, process.env.JWT_SECRET)        
 
         await prisma.user.findUniqueOrThrow({
-            where: { id : payload.id}
+            where: { id : payload.id},
+            include: {
+                role:true
+            }
         })        
 
         req.user = {
@@ -19,9 +23,8 @@ export const authentication = async (req, res, next) => {
         }
         
         
-        
         next()
-    } catch (error) {
+    } catch (error) {        
         next(error)
     }
 
