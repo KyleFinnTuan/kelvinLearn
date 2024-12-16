@@ -1,7 +1,6 @@
 import ButtonPrimary from "./components/ui/atoms/ButtonPrimary";
 import ButtonSecondary from "./components/ui/atoms/ButtonSecondary";
 import ButtonSecondaryIcon from "./components/ui/molecules/ButtonSecondaryIcon";
-import Card from "./components/ui/organisms/card";
 
 function App() {
   return (
